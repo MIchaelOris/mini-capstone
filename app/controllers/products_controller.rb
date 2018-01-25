@@ -3,6 +3,14 @@ class ProductsController < ApplicationController
     def index
 
       products = Product.all
+
+      search_term = params[:search]
+
+      if search_term
+      products = Product.all.where("name iLIKE ? "%#{search_term}%") 
+                               
+    end
+
       render json: products.as_json
 
     end
@@ -14,9 +22,10 @@ class ProductsController < ApplicationController
                           image_url: params[:image_url], 
                           description: params[:description]
                           )
-      product.save
+      if product.save
       render json: products.as_json
-
+    else
+      render json: {errors:product.errors.full_messages}, status: :unprocessable_entity
     end 
 
     def show
@@ -28,14 +37,17 @@ class ProductsController < ApplicationController
 
     def update 
 
-    product = Product.find(params[:id])
-    product.title = params[:name]
-    product.chef =params[:price]
-    product.ingredients =params[:image_url]
-    product.directions =params[:description]
-    product.save
+       product = Product.find(params[:id])
+      product.name = params[:name]
+      product.price =params[:price]
+      product.image =params[:image_url]
+      product.description =params[:description]
 
-    render json: products.as_json
+      if product.save
+        render json: products.as_json
+      else 
+        render json: {messages:product.errors.full_messages}, status: :unprocessable_entity
+      end 
 
     end 
 
