@@ -7,41 +7,46 @@ class ProductsController < ApplicationController
       search_term = params[:search]
 
       if search_term
-      products = Product.all.where("name iLIKE ? "%#{search_term}%") 
+      products = Product.all.where('name iLIKE ? "%#{search_term}%"') 
                                
     end
 
-      render json: products.as_json
+    sort_attribute = params[:sort]
+    if sort_attribute
+      @products = @products.order(sort_attribute => :asc)
+    end
 
+      render 'index.json.jbuilder'
     end
 
     def create 
-      product = Product.new(
+      @product = Product.new(
                           name: params[:name], 
                           price: params[:price], 
                           image_url: params[:image_url], 
                           description: params[:description]
                           )
-      if product.save
-      render json: products.as_json
+      if @product.save
+      render 'show.json.jbuilder'
     else
       render json: {errors:product.errors.full_messages}, status: :unprocessable_entity
     end 
+  end 
 
     def show
-      product = Product.find(params[:id])
-      render json: product.as_json
+      @product = Product.find(params[:id])
+      render 'show.json.jbuilder'
 
     end 
 
 
     def update 
 
-       product = Product.find(params[:id])
-      product.name = params[:name]
-      product.price =params[:price]
-      product.image =params[:image_url]
-      product.description =params[:description]
+      @product = @Product.find(params[:id])
+      @product.name = params[:name]
+      @product.price =params[:price]
+      @product.image =params[:image_url]
+      @product.description =params[:description]
 
       if product.save
         render json: products.as_json

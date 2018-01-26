@@ -17,19 +17,7 @@ class Product < ApplicationRecord
     price + tax
   end 
 
-  def as_json
-    {
-                  id: id,
-                  name: name,
-                  price: price,
-                  image_url: image_url,
-                  description: description,
-                  is_discounted: discounted?,
-                  tax: tax,
-                  total: total
-                  }
-  end
-
 end 
+
 
 
