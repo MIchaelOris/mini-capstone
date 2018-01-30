@@ -1,23 +1,27 @@
 class Product < ApplicationRecord
+  belongs_to :supplier
+
   validates :name, presence: true
   validates :name, uniqueness: true
   validates :price, presence: true
-  validates :price, numericality: {greater_than: 0 }
-  validates :description, length: {in: 10..500 }
+  validates :price, numericality: { greater_than: 0 }
+  validates :description, length: { in: 10..500 }
 
   def discounted?
-    price < 20
+    price < 50
   end
-  
+
   def tax
     price * 0.09
-  end 
+  end
 
   def total
-    price + tax
-  end 
+    tax + price
+  end
+end
 
-end 
+
+
 
 
 

@@ -7,3 +7,4 @@ json.description @product.discounted?
 json.tax
 json.price @product.price
 json.formatted_price number_to_currency(@product.price)
+json.supplier_name @product.supplier
