@@ -1,14 +1,13 @@
 class ProductsController < ApplicationController
 
-    def index
+  before_action :authenticate_admin, only: [:create, :update, :update]
+  
+  def index
+    @products = Product.all
 
-      products = Product.all
-
-      search_term = params[:search]
-
-      if search_term
-      products = Product.all.where('name iLIKE ? "%#{search_term}%"') 
-                               
+    search_term = params[:search]
+    if search_term
+      @products = @products.where("name iLike ?", "%#{search_term}%")
     end
 
     sort_attribute = params[:sort]
@@ -16,51 +15,58 @@ class ProductsController < ApplicationController
       @products = @products.order(sort_attribute => :asc)
     end
 
-      render 'index.json.jbuilder'
-    end
+    render 'index.json.jbuilder'
+  end
 
-    def create 
+  def create
+    if current_user && current_user.admin
       @product = Product.new(
-                          name: params[:name], 
-                          price: params[:price], 
-                          image_url: params[:image_url], 
-                          description: params[:description]
-                          supplier_id: params[:supplier_id]
-                          )
+                            name: params[:name],
+                            description: params[:description],
+                            price: params[:price],
+                            supplier_id: params[:supplier_id]
+                            )
+      
       if @product.save
+        render 'show.json.jbuilder'
+      else
+        render json: {errors: @product.errors.full_messages}, status: :unprocessable_entity
+      end
+    else
+      render json: {message: "you are not authorized"}, status: :unauthorized
+    end
+  end
+
+  def show
+    @product = Product.find(params[:id])
+    render 'show.json.jbuilder'
+  end
+
+  def update
+    if current_user && current_user.admin
+
+    @product = Product.find(params[:id])
+    
+    @product.name = params[:name] || @product.name
+    @product.description = params[:description] || @product.description
+    @product.price = params[:price] || @product.price
+    @product.image_url = params[:image_url] || @product.image_url
+    
+    
+     if  @product.save
       render 'show.json.jbuilder'
     else
-      render json: {errors:product.errors.full_messages}, status: :unprocessable_entity
-    end 
-  end 
-
-    def show
-      @product = Product.find(params[:id])
-      render 'show.json.jbuilder'
-
-    end 
-
-
-    def update 
-
-      @product = @Product.find(params[:id])
-      @product.name = params[:name]
-      @product.price =params[:price]
-      @product.image =params[:image_url]
-      @product.description =params[:description]
-
-      if product.save
-        render json: products.as_json
-      else 
-        render json: {messages:product.errors.full_messages}, status: :unprocessable_entity
-      end 
-
-    end 
-
-    def destroy
-      product = product.find(params[:id])
-      product.destroy
-      render json: {message: "Succesfully destroyed the Toy! ##{product.id}."}
+      render json: {message: @product.errors.full_messages}, status: :unprocessable_entity
     end
+  end
 
-end 
+  def destroy
+    if current_user && current_user.admin
+    product = Product.find(params[:id])
+    product.destroy
+    render json: {message: "Successfully destroyed product ##{product.id}"}
+    else
+      render json: {message: @product.errors.full_messages}, status: :unprocessable_entity
+    end
+  end
+end

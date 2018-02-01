@@ -1,5 +1,5 @@
 class UsersController < ApplicationController
-def create
+  def create
     user = User.new(
       name: params[:name],
       email: params[:email],
@@ -12,3 +12,4 @@ def create
       render json: {errors: user.errors.full_messages}, status: :bad_request
     end
   end
+end

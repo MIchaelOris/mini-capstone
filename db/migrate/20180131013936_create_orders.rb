@@ -5,8 +5,8 @@ class CreateOrders < ActiveRecord::Migration[5.1]
       t.integer :product_id
       t.integer :quantity
       t.decimal :subtotal, precision: 11, scale: 2
-      t.decimal :tax, precision: 11, scale: 2
-      t.decimal : total, precision: 11, scale: 2
+      t.decimal :tax, precision:11, scale: 2
+      t.decimal : total, precision:11, scale: 2
 
       t.timestamps
     end
